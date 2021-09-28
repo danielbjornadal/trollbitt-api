@@ -184,6 +184,10 @@ Dev mode        : ${this.dev}
         return { pool, poolDelegators, poolBlocks };
     }
 
+    public getEpochs() {
+        return this.epoch.slice(-3).reverse();
+    }
+
     public async getEpoch(epochId) {
         if (epochId === 'latest') epochId = this.epoch.at(-1);
 

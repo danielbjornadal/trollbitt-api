@@ -41,6 +41,10 @@ api.use(function (req, res, next) {
     next()
   })
 
+  api.get('/api/epoch', async function (req, res) {
+    res.send(app.getEpochs());
+})
+
 api.get('/api/epoch/:epochId?', async function (req, res) {
     let { epochId } = req.params;
     res.send(await app.getEpoch(epochId));
