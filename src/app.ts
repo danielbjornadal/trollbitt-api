@@ -10,7 +10,7 @@ export class App {
     private dev: boolean;
 
     private poolStats: any;
-    private epoch: Object;
+    private epoch: Object[];
 
     private runCounter: number;
     private errorCounter: number;
@@ -30,10 +30,10 @@ export class App {
         let { blockfrostApiKey, poolHash, runIntervalSeconds, dev } = options;
 
         this.poolHash = poolHash;
-        this.runInterval = (!isNaN(parseFloat(runIntervalSeconds)) ? parseFloat(runIntervalSeconds) : 30) * 1000;
+        this.runInterval = (!isNaN(parseFloat(runIntervalSeconds)) ? parseFloat(runIntervalSeconds) : 60) * 1000;
         this.dev = Boolean(dev && String(dev).toLowerCase() != 'false');
         this.poolStats = { 'pool': undefined, 'poolDelegators': undefined, 'poolBlocks': undefined };
-        this.epoch = {};
+        this.epoch = [];
 
         // Set all bot variables
         this.blockfrost = new Blockfrost({blockfrostApiKey});
@@ -42,7 +42,7 @@ export class App {
         this.runCounter = 0;
         this.isRunning = false;
 
-        log(`Starting bot...
+        log(`Starting app...
 Run Interval    : ${this.runInterval / 1000} seconds
 Dev mode        : ${this.dev}
 `); 
@@ -87,28 +87,61 @@ Dev mode        : ${this.dev}
     }
 
     private async controller() {
+
+        // Display Run Counter every 10th run.
+        if(this.runCounter == 1 || this.runCounter % 10 === 0){
+            info(`Run Counter: ${this.runCounter.toString().padStart(5)}`);
+        }
+
         try {
-            let { epoch, pool, poolDelegators, poolBlocks } = await this.fetchStats(this.poolHash);
+            let { pool, poolDelegators, poolBlocks } = await this.fetchPool(this.poolHash);
             this.poolStats = { pool, poolDelegators, poolBlocks };
-            this.epoch = epoch;
-            log({ epoch, pool, poolDelegators, poolBlocks });
-        } catch(e) {
+        } catch(e) { 
             let { error } = e;
-            crit(`Failed to fetch pool stats. ${error}`);
+            crit(`Failed to fetch pool. ${error}`);
             return false;
         }
+
+        try {
+            let epoch = await this.fetchEpoch('latest');
+            this.updateEpochs(epoch);
+
+            let latestEpoch:any = this.epoch.at(-1);
+            let latestEpochs = this.epoch.filter((x:any) => x.epoch > latestEpoch.epoch - 3 )
+            if(latestEpochs.length < 3) {
+                for(let i = 1; i < 3; i++)
+                {
+                    this.updateEpochs(await this.fetchEpoch(latestEpoch.epoch - i));
+                }
+            }
+        } catch(e) { 
+            let { error } = e;
+            crit(`Failed to fetch epoch. ${error}`);
+            return false;
+        }        
         return true;
     }
 
+    private updateEpochs(epoch) {
+        let index = this.epoch.findIndex((x:any) => x.epoch === epoch.epoch);
 
-    private async fetchStats(poolHash) {
-        let epoch,
-            pool,
+        if(index === -1) {
+            this.epoch.push(epoch);
+        } else {
+            this.epoch[index] = epoch;
+        }
+
+        this.epoch.sort((a:any, b:any) => {
+            return a.epoch - b.epoch
+        }); 
+    }
+
+    private async fetchPool(poolHash) {
+        let pool,
             poolDelegators,
             poolBlocks;
 
         try {
-            epoch = await this.blockfrost.getEpoch(poolHash);
             pool = await this.blockfrost.getPool(poolHash);
             poolDelegators = await this.blockfrost.getPoolDelegators(poolHash);
             poolBlocks = await this.blockfrost.getPoolBlocks(poolHash);
@@ -116,8 +149,20 @@ Dev mode        : ${this.dev}
             throw e;
         }
 
-        return { epoch, pool, poolDelegators, poolBlocks };
+        return { pool, poolDelegators, poolBlocks };
     }
+
+    private async fetchEpoch(epochId) {
+        let epoch;
+
+        try {
+            epoch = await this.blockfrost.getEpoch(epochId);
+        } catch(e) {
+            throw e;
+        }
+
+        return epoch;
+    }    
 
     public getPool() {
         let { pool } = this.poolStats;
@@ -139,10 +184,24 @@ Dev mode        : ${this.dev}
         return { pool, poolDelegators, poolBlocks };
     }
 
-    public getEpoch(tbd) {
-        let epoch = this.epoch;
+    public async getEpoch(epochId) {
+        if (epochId === 'latest') epochId = this.epoch.at(-1);
+
+        let index = this.epoch.findIndex((x:any) => x.epoch == epochId);
+        let epoch;
+
+        if(index === -1) {
+            try {
+                epoch = await this.fetchEpoch(epochId);
+                this.updateEpochs(epoch);
+            } catch(e) {
+                return {}
+            }
+        } else {
+            epoch = this.epoch[index];
+        } 
+
         return epoch;
     }
-
 }
 

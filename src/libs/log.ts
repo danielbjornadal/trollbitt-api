@@ -4,10 +4,7 @@ const parseLog = (log: any = '') => {
     let r: String = '';
     try {
         r = log
-        .replaceAll(/(?<![-\dm\.])([+\dm\.%$]+)/g, '$1'.green)                   // Positive numbers
-        .replaceAll(/(-[\d\.%$]+)/g, '$1'.yellow)                                // Negative numbers
-        .replaceAll(/(\s*long\s*|\s*buy[\s]*)([-]*)/gi, '$1'.green + '$2')      // long/buy
-        .replaceAll(/(\s*short\s*|\s*sell[\s]*)([-]*)/gi, '$1'.yellow + '$2')    // short/sell
+        /* Do parsing here*/
     } catch(e) {
         r = log;
     }
