@@ -32,10 +32,12 @@ app.run();
 
 
 const api = express();
+api.set('trust proxy', true)
 
 api.use(function (req, res, next) {
-    let { method, originalUrl, connection: { remoteAddress } } = req;
-    info(`${remoteAddress.padEnd(16)} ${method.padEnd(6)} ${originalUrl}`);
+    let { method, originalUrl, connection: { remoteAddress }, headers } = req;
+    let remoteIp = headers['x-real-ip'] || remoteAddress;
+    info(`${remoteIp.padEnd(16)} ${method.padEnd(6)} ${originalUrl}`);
     next()
   })
 
