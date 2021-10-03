@@ -50,6 +50,10 @@ api.get('/api/epoch/:epochId?', async function (req, res) {
     res.send(await app.getEpoch(epochId));
 })
 
+api.get('/api/lastblock', function (req, res) {
+    res.send(app.getLastBLock());
+})
+
 api.get('/api/pool', function (req, res) {
     res.send(app.getPool());
 })

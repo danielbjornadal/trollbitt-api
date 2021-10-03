@@ -57,6 +57,15 @@ export class Blockfrost {
         return await this.callApi(opts)
     }
 
+    public async getBlock(hash) {
+        let opts = { 
+            method: 'GET',
+            path: `/blocks/${hash}`,
+            params: { }
+        }
+        return await this.callApi(opts)
+    }
+
     public async getPool(poolId) {
         let opts = { 
             method: 'GET',

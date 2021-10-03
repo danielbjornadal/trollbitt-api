@@ -95,7 +95,7 @@ Dev mode        : ${this.dev}
 
         try {
             let { pool, poolDelegators, poolBlocks } = await this.fetchPool(this.poolHash);
-            this.poolStats = { pool, poolDelegators, poolBlocks };
+            this.poolStats = { pool, poolDelegators, poolBlocks, lastBlock: {} };
         } catch(e) { 
             let { error } = e;
             crit(`Failed to fetch pool. ${error}`);
@@ -118,7 +118,23 @@ Dev mode        : ${this.dev}
             let { error } = e;
             crit(`Failed to fetch epoch. ${error}`);
             return false;
-        }        
+        }      
+        
+        if(this.poolStats.poolBlocks.length > 0) {
+            let lastBlock = this.poolStats.poolBlocks.at(-1);
+
+            try {
+                let block = await this.fetchBlock(lastBlock);
+                this.poolStats.lastBlock = block;
+            } catch(e) { 
+                let { error } = e;
+                crit(`Failed to fetch block. ${error}`);
+                return false;
+            } 
+    
+        }
+
+
         return true;
     }
 
@@ -164,9 +180,26 @@ Dev mode        : ${this.dev}
         return epoch;
     }    
 
+    private async fetchBlock(hash) {
+        let block;
+
+        try {
+            block = await this.blockfrost.getBlock(hash);
+        } catch(e) {
+            throw e;
+        }
+
+        return block;
+    }  
+
     public getPool() {
         let { pool } = this.poolStats;
         return pool;
+    }
+
+    public getLastBLock() {
+        let { lastBlock } = this.poolStats;
+        return lastBlock;
     }
 
     public getPoolDelegators() {
