@@ -41,7 +41,11 @@ api.use(function (req, res, next) {
     next()
   })
 
-  api.get('/api/epoch', async function (req, res) {
+api.get('/api/ticker', async function (req, res) {
+    res.send(app.getTicker());
+})
+
+api.get('/api/epoch', async function (req, res) {
     res.send(app.getEpochs());
 })
 

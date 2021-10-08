@@ -1,16 +1,19 @@
 import { Blockfrost } from './libs/blockfrost'
+import { Binance } from './libs/binance'
 import { log, info, warn, crit } from './libs/log'
 
 
 export class App {
 
     private blockfrost;
+    private binance;
     private poolHash;
     private runInterval;
     private dev: boolean;
 
     private poolStats: any;
     private epoch: Object[];
+    private ticker: Object;
 
     private runCounter: number;
     private errorCounter: number;
@@ -37,6 +40,7 @@ export class App {
 
         // Set all bot variables
         this.blockfrost = new Blockfrost({blockfrostApiKey});
+        this.binance = new Binance();
 
         this.errorCounter = 0;
         this.runCounter = 0;
@@ -91,6 +95,15 @@ Dev mode        : ${this.dev}
         // Display Run Counter every 10th run.
         if(this.runCounter == 1 || this.runCounter % 10 === 0){
             info(`Run Counter: ${this.runCounter.toString().padStart(5)}`);
+        }
+
+        try {
+            let { ticker } = await this.fetchTicker();
+            this.ticker = ticker;
+        } catch(e) { 
+            let { error } = e;
+            crit(`Failed to fetch ticker. ${error}`);
+            return false;
         }
 
         try {
@@ -152,6 +165,18 @@ Dev mode        : ${this.dev}
         }); 
     }
 
+    private async fetchTicker() {
+        let ticker;
+
+        try {
+            ticker = await this.binance.getTicker24hr({ symbol: "ADAUSDT" });
+        } catch(e) {
+            throw e;
+        }
+
+        return { ticker };
+    }    
+
     private async fetchPool(poolHash) {
         let pool,
             poolDelegators,
@@ -193,6 +218,10 @@ Dev mode        : ${this.dev}
 
         return block;
     }  
+
+    public getTicker() {
+        return this.ticker;
+    }
 
     public getPool() {
         let { pool } = this.poolStats;
