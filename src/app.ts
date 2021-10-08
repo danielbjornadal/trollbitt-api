@@ -94,8 +94,8 @@ Dev mode        : ${this.dev}
         }
 
         try {
-            let { pool, poolDelegators, poolBlocks } = await this.fetchPool(this.poolHash);
-            this.poolStats = { pool, poolDelegators, poolBlocks, lastBlock: {} };
+            let { pool, poolDelegators, poolHistory, poolBlocks } = await this.fetchPool(this.poolHash);
+            this.poolStats = { pool, poolDelegators, poolHistory, poolBlocks, lastBlock: {} };
         } catch(e) { 
             let { error } = e;
             crit(`Failed to fetch pool. ${error}`);
@@ -155,17 +155,19 @@ Dev mode        : ${this.dev}
     private async fetchPool(poolHash) {
         let pool,
             poolDelegators,
+            poolHistory,
             poolBlocks;
 
         try {
             pool = await this.blockfrost.getPool(poolHash);
             poolDelegators = await this.blockfrost.getPoolDelegators(poolHash);
+            poolHistory = await this.blockfrost.getPoolHistory(poolHash);
             poolBlocks = await this.blockfrost.getPoolBlocks(poolHash);
         } catch(e) {
             throw e;
         }
 
-        return { pool, poolDelegators, poolBlocks };
+        return { pool, poolDelegators, poolHistory, poolBlocks };
     }
 
     private async fetchEpoch(epochId) {
@@ -205,6 +207,11 @@ Dev mode        : ${this.dev}
     public getPoolDelegators() {
         let { poolDelegators } = this.poolStats;
         return poolDelegators;
+    }
+
+    public getPoolHistory() {
+        let { poolHistory } = this.poolStats;
+        return poolHistory;
     }
 
     public getPoolBlocks() {

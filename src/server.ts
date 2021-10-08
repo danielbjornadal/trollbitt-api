@@ -66,6 +66,10 @@ api.get('/api/pool/delegators', function (req, res) {
     res.send(app.getPoolDelegators());
 })
 
+api.get('/api/pool/history', function (req, res) {
+    res.send(app.getPoolHistory());
+})
+
 api.get('/api/pool/blocks', function (req, res) {
     res.send(app.getPoolBlocks());
 })
