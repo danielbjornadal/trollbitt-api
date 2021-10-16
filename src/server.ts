@@ -36,8 +36,10 @@ api.set('trust proxy', true)
 
 api.use(function (req, res, next) {
     let { method, originalUrl, connection: { remoteAddress }, headers } = req;
-    let remoteIp = headers['x-real-ip'] || remoteAddress;
-    info(`${remoteIp.padEnd(16)} ${method.padEnd(6)} ${originalUrl}`);
+    if(originalUrl != '/health') {
+        let remoteIp = headers['x-real-ip'] || remoteAddress;
+        info(`${remoteIp.padEnd(16)} ${method.padEnd(6)} ${originalUrl}`);
+    }
     next()
   })
 
