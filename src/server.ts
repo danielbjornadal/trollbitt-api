@@ -41,6 +41,10 @@ api.use(function (req, res, next) {
     next()
   })
 
+api.get('/health', function (req, res) {
+    res.sendStatus(app.getHealth());
+})
+
 api.get('/api/ticker', async function (req, res) {
     res.send(app.getTicker());
 })

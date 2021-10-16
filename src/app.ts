@@ -18,6 +18,7 @@ export class App {
     private runCounter: number;
     private errorCounter: number;
     private isRunning: boolean;
+    private lastRun: number;
 
     constructor(options: any) {
 
@@ -58,6 +59,7 @@ Dev mode        : ${this.dev}
         let timeout = this.runInterval;
         this.runCounter++;
         this.isRunning = true;
+        this.lastRun = Date.now();
         let result: boolean = true;
 
         if(this.errorCounter > 10) {
@@ -275,6 +277,14 @@ Dev mode        : ${this.dev}
         } 
 
         return epoch;
+    }
+
+    public getHealth() {
+        let diff = Date.now() - this.lastRun;
+        if (diff >= this.runInterval * 2) {
+            return 500;
+        }
+        return 200;
     }
 }
 
