@@ -14,6 +14,7 @@ export class App {
     private poolStats: any;
     private epoch: Object[];
     private ticker: Object;
+    private network: Object;
 
     private runCounter: number;
     private errorCounter: number;
@@ -38,6 +39,7 @@ export class App {
         this.dev = Boolean(dev && String(dev).toLowerCase() != 'false');
         this.poolStats = { 'pool': undefined, 'poolDelegators': undefined, 'poolBlocks': undefined };
         this.epoch = [];
+        this.network = {};
 
         // Set all bot variables
         this.blockfrost = new Blockfrost({blockfrostApiKey});
@@ -97,6 +99,15 @@ Dev mode        : ${this.dev}
         // Display Run Counter every 10th run.
         if(this.runCounter == 1 || this.runCounter % 10 === 0){
             info(`Run Counter: ${this.runCounter.toString().padStart(5)}`);
+
+            try {
+                let network = await this.fetchNetwork();
+                this.network = network;
+            } catch(e) { 
+                let { error } = e;
+                crit(`Failed to fetch network. ${error}`);
+                return false;
+            }
         }
 
         try {
@@ -197,6 +208,18 @@ Dev mode        : ${this.dev}
         return { pool, poolDelegators, poolHistory, poolBlocks };
     }
 
+    private async fetchNetwork() {
+        let network;
+
+        try {
+            network = await this.blockfrost.getNetwork();
+        } catch(e) {
+            throw e;
+        }
+
+        return network;
+    } 
+
     private async fetchEpoch(epochId) {
         let epoch;
 
@@ -223,6 +246,10 @@ Dev mode        : ${this.dev}
 
     public getTicker() {
         return this.ticker;
+    }
+
+    public getNetwork() {
+        return this.network;
     }
 
     public getPool() {

@@ -51,6 +51,10 @@ api.get('/api/ticker', async function (req, res) {
     res.send(app.getTicker());
 })
 
+api.get('/api/network', async function (req, res) {
+    res.send(app.getNetwork());
+})
+
 api.get('/api/epoch', async function (req, res) {
     res.send(app.getEpochs());
 })

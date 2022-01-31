@@ -38,7 +38,6 @@ export class Blockfrost {
             opts.body = opts.params || {}
         
         try {
-            
             return await request(opts);
         } catch(e) {
             let { response: { statusCode: _statusCode, statusMessage: _error } = { statusCode: undefined, statusMessage: undefined } } = e;
@@ -52,6 +51,15 @@ export class Blockfrost {
         let opts = { 
             method: 'GET',
             path: `/epochs/${epoch}`,
+            params: { }
+        }
+        return await this.callApi(opts)
+    }
+
+    public async getNetwork() {
+        let opts = { 
+            method: 'GET',
+            path: `/network`,
             params: { }
         }
         return await this.callApi(opts)
