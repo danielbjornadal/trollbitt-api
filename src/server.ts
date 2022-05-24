@@ -33,7 +33,7 @@ app.run();
 
 const api = express();
 api.set('trust proxy', true)
-
+api.use(express.json());
 api.use(function (req, res, next) {
     let { method, originalUrl, connection: { remoteAddress }, headers } = req;
     if(originalUrl != '/health') {
@@ -86,6 +86,15 @@ api.get('/api/pool/history', function (req, res) {
 
 api.get('/api/pool/blocks', function (req, res) {
     res.send(app.getPoolBlocks());
+})
+
+api.get('/api/pool/leaderlogs', async (req, res) => {
+    res.send(await app.getPoolLeaderlogs());
+})
+
+api.post('/api/pool/leaderlogs', async (req, res) => {
+    let { body } = req;
+    res.send(await app.postPoolLeaderlogs(body));
 })
 
 api.listen(serverPort, () => {

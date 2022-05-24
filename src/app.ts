@@ -1,5 +1,8 @@
 import { Blockfrost } from './libs/blockfrost'
 import { Binance } from './libs/binance'
+
+import * as Sequelize from "sequelize"
+import * as leaderlogsModel from './models/leaderlogsModel';
 import { log, info, warn, crit } from './libs/log'
 
 
@@ -304,6 +307,51 @@ Dev mode        : ${this.dev}
         } 
 
         return epoch;
+    }
+
+    public async getPoolLeaderlogs() {
+        let leaderlogsFuture,
+            leaderlogsPast;
+        try {
+            leaderlogsFuture = await leaderlogsModel.Leaderlogs.findAll({
+                attributes: ['no', [Sequelize.fn('date_format', Sequelize.col('at'), '%Y-%m-%d'), 'at']],
+                
+                where: {
+                    at: {
+                        [Sequelize.Op.gte]: Date.now()
+                    }
+                },
+                order: [['at', 'desc']],
+                raw: true
+            });
+            leaderlogsPast = await leaderlogsModel.Leaderlogs.findAll({
+                attributes: ['no', 'slot', 'slotInEpoch', 'at'],
+                where: {
+                    at: {
+                        [Sequelize.Op.lte]: Date.now()
+                    }
+                },
+                order: [['at', 'desc']],
+                raw: true
+            });
+        } catch(e) {
+            log(e)
+            return {}
+        }
+
+        return leaderlogsFuture.concat(leaderlogsPast);
+    }
+
+    public async postPoolLeaderlogs(body) {
+        try {
+            const leaderlogs = await leaderlogsModel.Leaderlogs.create(body);
+            const { at } = leaderlogs;
+            log(`New block added at ${at}`);
+            return leaderlogs;
+        } 
+        catch (e) {
+            return {}
+        } 
     }
 
     public getHealth() {
