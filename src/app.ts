@@ -165,6 +165,28 @@ Dev mode        : ${this.dev}
     
         }
 
+        try {
+            let blocks_blockfrost = this.poolStats.poolBlocks;
+            let blocks_trollbitt = await leaderlogsModel.Leaderlogs.findAll({
+                attributes: [ 'hash' ],
+                raw: true,
+                nest:true
+            });
+            blocks_trollbitt = blocks_trollbitt.map(r => r.hash);
+            blocks_blockfrost = blocks_blockfrost.filter(val => !blocks_trollbitt.includes(val));
+
+            blocks_blockfrost.forEach(async (hash) => {
+                let block = await this.fetchBlock(hash); 
+                block.time = block.time * 1000
+                const [created] = await leaderlogsModel.Leaderlogs.upsert(block);
+                log(`LeaderLogs - Block ${block.hash} for slot ${block.slot} added: ${created}`);
+            });
+
+        } catch(e) {
+            log(e)
+            return {}
+        }
+
 
         return true;
     }
