@@ -7,8 +7,9 @@ const {
     BLOCKFROST_API_KEY: blockfrostApiKey = '',
     POOL_HASH: poolHash = '2220471638833bba1e69d450b5da722b592888d7a56f5cddf6efe1eb',
     RUN_INTERVAL_SECONDS: runIntervalSeconds = '',
+    APIKEY: apikey = '',
     PORT: serverPort = 8080,
-    DEV: dev = false,
+    DEV: dev = false, 
     ENABLECOLORS: enableColors = true
 } = process.env;
 
@@ -25,6 +26,7 @@ let app = new App(
         blockfrostApiKey,
         poolHash,
         runIntervalSeconds,
+        apikey,
         dev
     }
 );
@@ -93,8 +95,7 @@ api.get('/api/pool/leaderlogs', async (req, res) => {
 })
 
 api.post('/api/pool/leaderlogs', async (req, res) => {
-    let { body } = req;
-    res.send(await app.postPoolLeaderlogs(body));
+    res.send(await app.postPoolLeaderlogs(req));
 })
 
 api.listen(serverPort, () => {

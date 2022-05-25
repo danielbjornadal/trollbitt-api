@@ -12,6 +12,7 @@ export class App {
     private binance;
     private poolHash;
     private runInterval;
+    private apikey; 
     private dev: boolean;
 
     private poolStats: any;
@@ -35,11 +36,12 @@ export class App {
         }
 
         // Extract all input variables
-        let { blockfrostApiKey, poolHash, runIntervalSeconds, dev } = options;
+        let { blockfrostApiKey, poolHash, runIntervalSeconds, apikey, dev } = options;
 
         this.poolHash = poolHash;
         this.runInterval = (!isNaN(parseFloat(runIntervalSeconds)) ? parseFloat(runIntervalSeconds) : 60) * 1000;
         this.dev = Boolean(dev && String(dev).toLowerCase() != 'false');
+        this.apikey = apikey;
         this.poolStats = { 'pool': undefined, 'poolDelegators': undefined, 'poolBlocks': undefined };
         this.epoch = [];
         this.network = {};
@@ -314,7 +316,7 @@ Dev mode        : ${this.dev}
             leaderlogsPast;
         try {
             leaderlogsFuture = await leaderlogsModel.Leaderlogs.findAll({
-                attributes: ['no', [Sequelize.fn('date_format', Sequelize.col('at'), '%Y-%m-%d'), 'at']],
+                attributes: ['no', [Sequelize.fn('date_format', Sequelize.col('at'), '%Y-%m-%d'), 'at'], 'epoch', 'epochSlots', 'epochSlotsIdeal'],
                 
                 where: {
                     at: {
@@ -325,7 +327,7 @@ Dev mode        : ${this.dev}
                 raw: true
             });
             leaderlogsPast = await leaderlogsModel.Leaderlogs.findAll({
-                attributes: ['no', 'slot', 'slotInEpoch', 'at'],
+                attributes: ['no', 'slot', 'slotInEpoch', 'at', 'epoch', 'epochSlots', 'epochSlotsIdeal'],
                 where: {
                     at: {
                         [Sequelize.Op.lte]: Date.now()
@@ -342,11 +344,18 @@ Dev mode        : ${this.dev}
         return leaderlogsFuture.concat(leaderlogsPast);
     }
 
-    public async postPoolLeaderlogs(body) {
+    public async postPoolLeaderlogs(req) {
+        let { body, headers } = req;
+        let { apikey } = headers;
+
+        if(apikey != this.apikey) {
+            return { error: "Not authorized"}
+        }
+
         try {
-            const leaderlogs = await leaderlogsModel.Leaderlogs.create(body);
+            const leaderlogs = await leaderlogsModel.Leaderlogs.bulkCreate(body);
             const { at } = leaderlogs;
-            log(`New block added at ${at}`);
+            log(`LeaderLogs - ${leaderlogs.length} blocks added`);
             return leaderlogs;
         } 
         catch (e) {

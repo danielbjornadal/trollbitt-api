@@ -33,6 +33,18 @@ export const Leaderlogs = sequelize.define("leaderlogs", {
     "at": { 
         type: Sequelize.DATE,
         allowNull: false
+    },
+    "epoch": { 
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
+    "epochSlots": { 
+        type: Sequelize.INTEGER,
+        allowNull: false
+    },
+    "epochSlotsIdeal": { 
+        type: Sequelize.FLOAT,
+        allowNull: false
     }
 },{
     //initialAutoIncrement: 0,
