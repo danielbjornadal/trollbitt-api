@@ -336,7 +336,7 @@ Dev mode        : ${this.dev}
             leaderlogsPast;
         try {
             leaderlogsFuture = await leaderlogsModel.Leaderlogs.findAll({
-                attributes: [ [Sequelize.fn('date_format', Sequelize.col('at'), '%Y-%m-%d'), 'time'], 'epoch', 'epoch_slots_ideal'],
+                attributes: [ [Sequelize.fn('date_format', Sequelize.col('time'), '%Y-%m-%d'), 'time'], 'epoch', 'epoch_slots_ideal'],
                 
                 where: {
                     at: {
