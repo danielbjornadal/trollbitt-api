@@ -316,24 +316,24 @@ Dev mode        : ${this.dev}
             leaderlogsPast;
         try {
             leaderlogsFuture = await leaderlogsModel.Leaderlogs.findAll({
-                attributes: ['no', [Sequelize.fn('date_format', Sequelize.col('at'), '%Y-%m-%d'), 'at'], 'epoch', 'epochSlots', 'epochSlotsIdeal'],
+                attributes: [ [Sequelize.fn('date_format', Sequelize.col('at'), '%Y-%m-%d'), 'time'], 'epoch', 'epoch_slots_ideal'],
                 
                 where: {
                     at: {
                         [Sequelize.Op.gte]: Date.now()
                     }
                 },
-                order: [['at', 'desc']],
+                order: [['time', 'desc']],
                 raw: true
             });
             leaderlogsPast = await leaderlogsModel.Leaderlogs.findAll({
-                attributes: ['no', 'slot', 'slotInEpoch', 'at', 'epoch', 'epochSlots', 'epochSlotsIdeal'],
+                attributes: [ 'slot', 'epoch_slot', 'time', 'epoch', 'epoch_slots_ideal'],
                 where: {
                     at: {
                         [Sequelize.Op.lte]: Date.now()
                     }
                 },
-                order: [['at', 'desc']],
+                order: [['time', 'desc']],
                 raw: true
             });
         } catch(e) {
@@ -354,7 +354,7 @@ Dev mode        : ${this.dev}
 
         try {
             const leaderlogs = await leaderlogsModel.Leaderlogs.bulkCreate(body);
-            const { at } = leaderlogs;
+            const { time } = leaderlogs;
             log(`LeaderLogs - ${leaderlogs.length} blocks added`);
             return leaderlogs;
         } 

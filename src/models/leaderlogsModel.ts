@@ -17,34 +17,35 @@ export const Leaderlogs = sequelize.define("leaderlogs", {
         primaryKey: true,
         autoIncrement: true
     },
-    "no": { 
-        type: Sequelize.INTEGER,
-        allowNull: false
+    "time": { 
+        type: Sequelize.DATE,
+        allowNull: false,
+        unique: true
     },
+    "height": { 
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        unique: true
+    },
+    "hash": { 
+        type: Sequelize.TEXT,
+        unique: true
+    },    
     "slot": { 
         type: Sequelize.INTEGER,
         allowNull: false,
         unique: true
     },
-    "slotInEpoch": { 
-        type: Sequelize.INTEGER,
-        allowNull: false
-    },
-    "at": { 
-        type: Sequelize.DATE,
-        allowNull: false
-    },
     "epoch": { 
         type: Sequelize.INTEGER,
         allowNull: false
     },
-    "epochSlots": { 
+    "epoch_slot": { 
         type: Sequelize.INTEGER,
         allowNull: false
     },
-    "epochSlotsIdeal": { 
-        type: Sequelize.FLOAT,
-        allowNull: false
+    "epoch_slot_ideal": { 
+        type: Sequelize.FLOAT
     }
 },{
     //initialAutoIncrement: 0,
