@@ -338,7 +338,7 @@ Dev mode        : ${this.dev}
                 attributes: [ [Sequelize.fn('date_format', Sequelize.col('time'), '%Y-%m-%d'), 'time'], 'epoch', 'epoch_slots_ideal'],
                 
                 where: {
-                    at: {
+                    time: {
                         [Sequelize.Op.gte]: Date.now()
                     }
                 },
@@ -348,7 +348,7 @@ Dev mode        : ${this.dev}
             leaderlogsPast = await leaderlogsModel.Leaderlogs.findAll({
                 attributes: [ 'slot', 'epoch_slot', 'time', 'epoch', 'epoch_slots_ideal'],
                 where: {
-                    at: {
+                    time: {
                         [Sequelize.Op.lte]: Date.now()
                     }
                 },
