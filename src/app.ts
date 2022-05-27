@@ -185,7 +185,6 @@ Dev mode        : ${this.dev}
             return false
         }
 
-
         return true;
     }
 

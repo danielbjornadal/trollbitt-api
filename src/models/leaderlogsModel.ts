@@ -24,7 +24,6 @@ export const Leaderlogs = sequelize.define("leaderlogs", {
     },
     "height": { 
         type: Sequelize.INTEGER,
-        allowNull: false,
         unique: true
     },
     "hash": { 
