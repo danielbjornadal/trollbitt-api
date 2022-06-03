@@ -98,7 +98,7 @@ api.post('/api/pool/leaderlogs', async (req, res) => {
     res.send(await app.postPoolLeaderlogs(req));
 })
 api.delete('/api/pool/leaderlogs', async (req, res) => {
-    res.send(await app.deletePoolLeaderlogs(req));
+    res.sendStatus(await app.deletePoolLeaderlogs(req));
 })
 api.listen(serverPort, () => {
     console.log(`Server listening on port ${serverPort}`);

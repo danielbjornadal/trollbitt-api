@@ -392,12 +392,14 @@ Dev mode        : ${this.dev}
 
         try {
             const leaderlogs = await leaderlogsModel.Leaderlogs.destroy({where: body});
-            const { time } = leaderlogs;
-            log(`LeaderLogs - ${leaderlogs.length} blocks deleted`);
-            return leaderlogs;
+            if(leaderlogs) {
+                log(`LeaderLogs - blocks deleted where: ${JSON.stringify(body)}`);
+                return 204
+            }
+            return 400;
         } 
         catch (e) {
-            return {}
+            return 502
         } 
     }
 
