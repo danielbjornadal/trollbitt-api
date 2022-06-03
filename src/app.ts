@@ -382,6 +382,25 @@ Dev mode        : ${this.dev}
         } 
     }
 
+    public async deletePoolLeaderlogs(req) {
+        let { body, headers } = req;
+        let { apikey } = headers;
+
+        if(apikey != this.apikey) {
+            return { error: "Not authorized"}
+        }
+
+        try {
+            const leaderlogs = await leaderlogsModel.Leaderlogs.destroy({where: body});
+            const { time } = leaderlogs;
+            log(`LeaderLogs - ${leaderlogs.length} blocks deleted`);
+            return leaderlogs;
+        } 
+        catch (e) {
+            return {}
+        } 
+    }
+
     public getHealth() {
         let diff = Date.now() - this.lastRun;
         if (diff >= this.runInterval * 2) {
