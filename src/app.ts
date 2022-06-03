@@ -342,7 +342,7 @@ Dev mode        : ${this.dev}
                         [Sequelize.Op.eq]: null
                     }
                 },
-                order: [['time', 'desc']],
+                order: [['time', 'asc']],
                 raw: true
             });
             leaderlogsPast = await leaderlogsModel.Leaderlogs.findAll({
@@ -352,7 +352,7 @@ Dev mode        : ${this.dev}
                         [Sequelize.Op.ne]: null
                     }
                 },
-                order: [['time', 'desc']],
+                order: [['time', 'asc']],
                 raw: true
             });
         } catch(e) {
