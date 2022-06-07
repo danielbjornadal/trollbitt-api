@@ -360,7 +360,7 @@ Dev mode        : ${this.dev}
             return {}
         }
 
-        return leaderlogsFuture.concat(leaderlogsPast);
+        return leaderlogsPast.concat(leaderlogsFuture);
     }
 
     public async postPoolLeaderlogs(req) {
